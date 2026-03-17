@@ -4,7 +4,7 @@ import json
 from email.mime.text import MIMEText
 
 SENDER = "ayeshabhanu788@gmail.com"
-RECEIVER = "ayeshabhanu788@gmail.com"
+RECEIVER = "noorit245@gmail.com"
 PASSWORD = "abkvjmgfddfbfvio"
 # Convert UTC → IST
 current_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)).strftime("%H:%M")
