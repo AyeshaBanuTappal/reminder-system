@@ -15,7 +15,7 @@ with open("reminders.json", "r") as f:
 now = datetime.datetime.now().strftime("%H:%M")
 
 for r in reminders:
-    if now == r["time"]:
+    if now >= r["time"]:
         task = r["task"]
         print(f"🔔 Sending reminder: {task}")
 
