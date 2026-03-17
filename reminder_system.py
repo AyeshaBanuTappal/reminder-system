@@ -3,23 +3,29 @@ import smtplib
 import json
 from email.mime.text import MIMEText
 
-# 📧 EMAIL CONFIG
 SENDER = "ayeshabhanu788@gmail.com"
 RECEIVER = "ayeshabhanu788@gmail.com"
 PASSWORD = "abkvjmgfddfbfvio"
+# Convert UTC → IST
+current_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)).strftime("%H:%M")
+today = str(datetime.date.today())
 
-# 📁 Load reminders
 with open("reminders.json", "r") as f:
     reminders = json.load(f)
 
-now = (datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)).strftime("%H:%M")
+# prevent duplicate sending
+sent_file = "sent_log.txt"
+try:
+    with open(sent_file, "r") as f:
+        sent = f.read().splitlines()
+except:
+    sent = []
 
 for r in reminders:
-    if now == r["time"]:
-        task = r["task"]
-        print(f"🔔 Sending reminder: {task}")
+    unique_id = r["task"] + today
 
-        msg = MIMEText(f"Reminder: {task}")
+    if current_time == r["time"] and unique_id not in sent:
+        msg = MIMEText(f"Reminder: {r['task']}")
         msg["Subject"] = "Task Reminder"
         msg["From"] = SENDER
         msg["To"] = RECEIVER
@@ -32,5 +38,10 @@ for r in reminders:
 
             print("✅ Email sent")
 
+            with open(sent_file, "a") as f:
+                f.write(unique_id + "\n")
+
         except Exception as e:
             print("❌ Error:", e)
+
+            
