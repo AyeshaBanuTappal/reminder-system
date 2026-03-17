@@ -12,7 +12,7 @@ PASSWORD = "abkvjmgfddfbfvio"
 with open("reminders.json", "r") as f:
     reminders = json.load(f)
 
-now = datetime.datetime.now().strftime("%H:%M")
+now = (datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)).strftime("%H:%M")
 
 for r in reminders:
     if now >= r["time"]:
