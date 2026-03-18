@@ -7,22 +7,9 @@ from email.mime.text import MIMEText
 # EMAIL CONFIG
 SENDER = "ayeshabhanu788@gmail.com"
 RECEIVER = "ayeshabhanu788@gmail.com"
-PASSWORD = os.getenv("EMAIL_PASS") # ⚠️ put NEW app password (no spaces)
+PASSWORD = os.getenv("EMAIL_PASS")
 
-# Convert UTC → IST
 REMINDER_FILE = "reminders.json"
-SENT_FILE = "sent_log.txt"
-
-def load_sent():
-    try:
-        with open(SENT_FILE, "r") as f:
-            return f.read().splitlines()
-    except:
-        return []
-
-def save_sent(unique_id):
-    with open(SENT_FILE, "a") as f:
-        f.write(unique_id + "\n")
 
 def send_email(task):
     msg = MIMEText(f"Reminder: {task}")
@@ -35,41 +22,29 @@ def send_email(task):
         server.login(SENDER, PASSWORD)
         server.send_message(msg)
 
-    try:
-        # Current IST time
-        current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
-        today = str(current_dt.date())
+# 🔥 MAIN CODE STARTS HERE (OUTSIDE FUNCTION)
 
-        # Load reminders
-        with open(REMINDER_FILE, "r") as f:
-            reminders = json.load(f)
+try:
+    current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
 
-        sent = load_sent()
+    with open(REMINDER_FILE, "r") as f:
+        reminders = json.load(f)
 
-        for r in reminders:
-            unique_id = r["task"] + today
+    for r in reminders:
+        target_time = datetime.datetime.strptime(r["time"], "%H:%M")
+        target_dt = current_dt.replace(
+            hour=target_time.hour,
+            minute=target_time.minute,
+            second=0,
+            microsecond=0
+        )
 
-            # Convert reminder time
-            target_time = datetime.datetime.strptime(r["time"], "%H:%M")
-            target_dt = current_dt.replace(
-                hour=target_time.hour,
-                minute=target_time.minute,
-                second=0,
-                microsecond=0
-            )
+        diff = (current_dt - target_dt).total_seconds()
 
-            diff = (current_dt - target_dt).total_seconds()
+        # ✅ 3 min safe window
+        if 0 <= diff <= 180:
+            send_email(r["task"])
+            print(f"✅ Email sent: {r['task']}")
 
-            # ✅ FIXED CONDITION (no missing)
-            if 0 <= diff <= 120 and unique_id not in sent:
-                try:
-                    send_email(r["task"])
-                    print(f"✅ Email sent: {r['task']}")
-                    save_sent(unique_id)
-                except Exception as e:
-                    print("❌ Email error:", e)
-
-    except Exception as e:
-        print("❌ General error:", e)
-
-   
+except Exception as e:
+    print("❌ Error:", e)
