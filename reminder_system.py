@@ -42,7 +42,7 @@ try:
         diff = (current_dt - target_dt).total_seconds()
 
         # ✅ 3 min safe window
-        if 0 <= diff <= 180:
+        if 0 <= diff <= 600:
             send_email(r["task"])
             print(f"✅ Email sent: {r['task']}")
 
