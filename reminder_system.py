@@ -1,12 +1,13 @@
 import datetime
 import smtplib
 import json
+import os
 from email.mime.text import MIMEText
 
 # EMAIL CONFIG
 SENDER = "ayeshabhanu788@gmail.com"
 RECEIVER = "ayeshabhanu788@gmail.com"
-PASSWORD = "bdfnetihzyktpclv"  # ⚠️ put NEW app password (no spaces)
+PASSWORD = os.getenv("EMAIL_PASS") # ⚠️ put NEW app password (no spaces)
 
 # Convert UTC → IST
 REMINDER_FILE = "reminders.json"
@@ -34,7 +35,6 @@ def send_email(task):
         server.login(SENDER, PASSWORD)
         server.send_message(msg)
 
-while True:
     try:
         # Current IST time
         current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
@@ -72,5 +72,4 @@ while True:
     except Exception as e:
         print("❌ General error:", e)
 
-    # Check every 30 seconds
-    time.sleep(30)
+   
