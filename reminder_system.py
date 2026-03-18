@@ -23,7 +23,7 @@ for r in reminders:
     diff = (current_dt - target_dt).total_seconds()
     unique_id = r["task"] + str(current_dt.date())
 
-    if 0 <= diff <= 600 and unique_id not in sent:
+    if -120 <= diff <= 600 and unique_id not in sent:
         try:
             msg = MIMEText(f"Reminder: {r['task']}")
             msg["Subject"] = "Task Reminder"
