@@ -61,7 +61,7 @@ def send_email(task):
             diff = (current_dt - target_dt).total_seconds()
 
             # ✅ FIXED CONDITION (no missing)
-            if diff >= 0 and unique_id not in sent:
+            if 0 <= diff <= 120 and unique_id not in sent:
                 try:
                     send_email(r["task"])
                     print(f"✅ Email sent: {r['task']}")
