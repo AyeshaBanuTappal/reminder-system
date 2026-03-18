@@ -5,53 +5,72 @@ from email.mime.text import MIMEText
 
 # EMAIL CONFIG
 SENDER = "ayeshabhanu788@gmail.com"
-RECEIVER = "noorit245@gmail.com"
-PASSWORD = "abkvjmgfddfbfvio"  # ⚠️ put NEW app password (no spaces)
+RECEIVER = "ayeshabhanu788@gmail.com"
+PASSWORD = "bdfnetihzyktpclv"  # ⚠️ put NEW app password (no spaces)
 
 # Convert UTC → IST
-current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
-today = str(datetime.date.today())
+REMINDER_FILE = "reminders.json"
+SENT_FILE = "sent_log.txt"
 
-# Load reminders
-with open("reminders.json", "r") as f:
-    reminders = json.load(f)
+def load_sent():
+    try:
+        with open(SENT_FILE, "r") as f:
+            return f.read().splitlines()
+    except:
+        return []
 
-# Prevent duplicate sending
-sent_file = "sent_log.txt"
-try:
-    with open(sent_file, "r") as f:
-        sent = f.read().splitlines()
-except:
-    sent = []
+def save_sent(unique_id):
+    with open(SENT_FILE, "a") as f:
+        f.write(unique_id + "\n")
 
-for r in reminders:
-    unique_id = r["task"] + today
+def send_email(task):
+    msg = MIMEText(f"Reminder: {task}")
+    msg["Subject"] = "Task Reminder"
+    msg["From"] = SENDER
+    msg["To"] = RECEIVER
 
-    # Convert reminder time
-    target_time = datetime.datetime.strptime(r["time"], "%H:%M")
-    target_dt = current_dt.replace(hour=target_time.hour, minute=target_time.minute, second=0, microsecond=0)
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
+        server.login(SENDER, PASSWORD)
+        server.send_message(msg)
 
-    # Difference in seconds
-    diff = (current_dt - target_dt).total_seconds()
+while True:
+    try:
+        # Current IST time
+        current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
+        today = str(current_dt.date())
 
-    # Check within 1 minute window
-    if 0 <= diff <= 60 and unique_id not in sent:
-        msg = MIMEText(f"Reminder: {r['task']}")
-        msg["Subject"] = "Task Reminder"
-        msg["From"] = SENDER
-        msg["To"] = RECEIVER
+        # Load reminders
+        with open(REMINDER_FILE, "r") as f:
+            reminders = json.load(f)
 
-        try:
-            with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                server.starttls()
-                server.login(SENDER, PASSWORD)
-                server.send_message(msg)
+        sent = load_sent()
 
-            print("✅ Email sent")
+        for r in reminders:
+            unique_id = r["task"] + today
 
-            # Save log to avoid duplicate
-            with open(sent_file, "a") as f:
-                f.write(unique_id + "\n")
+            # Convert reminder time
+            target_time = datetime.datetime.strptime(r["time"], "%H:%M")
+            target_dt = current_dt.replace(
+                hour=target_time.hour,
+                minute=target_time.minute,
+                second=0,
+                microsecond=0
+            )
 
-        except Exception as e:
-            print("❌ Error:", e)
+            diff = (current_dt - target_dt).total_seconds()
+
+            # ✅ FIXED CONDITION (no missing)
+            if diff >= 0 and unique_id not in sent:
+                try:
+                    send_email(r["task"])
+                    print(f"✅ Email sent: {r['task']}")
+                    save_sent(unique_id)
+                except Exception as e:
+                    print("❌ Email error:", e)
+
+    except Exception as e:
+        print("❌ General error:", e)
+
+    # Check every 30 seconds
+    time.sleep(30)
