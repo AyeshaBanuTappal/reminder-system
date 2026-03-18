@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 
 SENDER = "ayeshabhanu788@gmail.com"
 RECEIVER = "ayeshabhanu788@gmail.com"
-PASSWORD = os.getenv("EMAIL_PASS")
+PASSWORD = "bdfnetihzyktpclv"
 
 current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
 
@@ -21,10 +21,18 @@ for r in reminders:
     target_dt = current_dt.replace(hour=target_time.hour, minute=target_time.minute)
 
     diff = (current_dt - target_dt).total_seconds()
+
+    # ✅ ADD HERE
+    print("Current:", current_dt.strftime("%H:%M"))
+    print("Target:", r["time"])
+    print("Diff:", diff)
+
     unique_id = r["task"] + str(current_dt.date())
 
     if -120 <= diff <= 600 and unique_id not in sent:
         try:
+            print("Trying to send email...")  # ✅ ADD HERE
+
             msg = MIMEText(f"Reminder: {r['task']}")
             msg["Subject"] = "Task Reminder"
             msg["From"] = SENDER
