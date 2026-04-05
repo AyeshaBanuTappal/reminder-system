@@ -24,20 +24,20 @@ for r in reminders:
     print("Diff:", diff)
 
    if diff >= 0 and diff <= 900:
-        try:
-            print("Trying to send email...")
+    try:
+        print("Trying to send email...")
 
-            msg = MIMEText(f"Reminder: {r['task']}")
-            msg["Subject"] = "Task Reminder"
-            msg["From"] = SENDER
-            msg["To"] = RECEIVER
+        msg = MIMEText(f"Reminder: {r['task']}")
+        msg["Subject"] = "Task Reminder"
+        msg["From"] = SENDER
+        msg["To"] = RECEIVER
 
-            with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                server.starttls()
-                server.login(SENDER, PASSWORD)
-                server.send_message(msg)
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(SENDER, PASSWORD)
+            server.send_message(msg)
 
-            print("✅ Email sent")
+        print("✅ Email sent")
 
-        except Exception as e:
-            print("❌ Error:", e)
+    except Exception as e:
+        print("❌ Error:", e)
