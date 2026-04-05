@@ -8,14 +8,17 @@ SENDER = "ayeshabhanu788@gmail.com"
 RECEIVER = "ayeshabhanu788@gmail.com"
 PASSWORD = os.environ.get("EMAIL_PASS")
 
+# Get current IST time
 current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
 
+# Load reminders
 with open("reminders.json", "r") as f:
     reminders = json.load(f)
 
+# Loop through reminders
 for r in reminders:
     target_time = datetime.datetime.strptime(r["time"], "%H:%M")
-    target_dt = current_dt.replace(hour=target_time.hour, minute=target_time.minute)
+    target_dt = current_dt.replace(hour=target_time.hour, minute=target_time.minute, second=0, microsecond=0)
 
     diff = (current_dt - target_dt).total_seconds()
 
@@ -23,21 +26,22 @@ for r in reminders:
     print("Target:", r["time"])
     print("Diff:", diff)
 
-   if diff >= 0 and diff <= 900:
-    try:
-        print("Trying to send email...")
+    # Send mail if within 15 minutes AFTER time
+    if 0 <= diff <= 60:
+        try:
+            print("Trying to send email...")
 
-        msg = MIMEText(f"Reminder: {r['task']}")
-        msg["Subject"] = "Task Reminder"
-        msg["From"] = SENDER
-        msg["To"] = RECEIVER
+            msg = MIMEText(f"Reminder: {r['task']}")
+            msg["Subject"] = "Task Reminder"
+            msg["From"] = SENDER
+            msg["To"] = RECEIVER
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(SENDER, PASSWORD)
-            server.send_message(msg)
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()
+                server.login(SENDER, PASSWORD)
+                server.send_message(msg)
 
-        print("✅ Email sent")
+            print("✅ Email sent")
 
-    except Exception as e:
-        print("❌ Error:", e)
+        except Exception as e:
+            print("❌ Error:", e)
