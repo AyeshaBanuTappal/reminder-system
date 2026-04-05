@@ -36,7 +36,7 @@ for r in reminders:
     unique_id = r["task"] + str(current_dt.date())
 
     # FINAL CONDITION (no miss)
-    if -1200 <= diff <= 1200 and unique_id not in sent:
+    if diff >= 0 and unique_id not in sent:
         try:
             print("Trying to send email...")
 
