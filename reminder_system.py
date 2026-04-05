@@ -23,7 +23,7 @@ for r in reminders:
     print("Target:", r["time"])
     print("Diff:", diff)
 
-    if -60 <= diff <= 60:
+    if 0 <= diff <= 120:
         try:
             print("Trying to send email...")
 
