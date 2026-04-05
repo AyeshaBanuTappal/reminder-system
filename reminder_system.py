@@ -5,7 +5,7 @@ import os
 from email.mime.text import MIMEText
 
 SENDER = "ayeshabhanu788@gmail.com"
-RECEIVER = "lasya.d2007@gmail.com"
+RECEIVER = "edigarajesh38@gmail.com"
 PASSWORD = os.environ.get("EMAIL_PASS")
 
 # Current IST time
