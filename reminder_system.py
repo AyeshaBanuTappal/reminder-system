@@ -27,7 +27,7 @@ for r in reminders:
     print("Diff:", diff)
 
     # Send mail if within 15 minutes AFTER time
-    if 0 <= diff <= 60:
+    if -1200 <= diff <= +1200 and unique_id not in sent:
         try:
             print("Trying to send email...")
 
