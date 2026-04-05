@@ -2,7 +2,7 @@ name: Reminder Job
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: "* * * * *"
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v4
+
       - run: python reminder_system.py
         env:
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
