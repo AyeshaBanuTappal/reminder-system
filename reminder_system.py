@@ -6,15 +6,12 @@ from email.mime.text import MIMEText
 
 SENDER = "ayeshabhanu788@gmail.com"
 RECEIVER = "ayeshabhanu788@gmail.com"
-PASSWORD = "bdfnetihzyktpclv"
+PASSWORD = os.environ.get("EMAIL_PASS")
 
 current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
 
 with open("reminders.json", "r") as f:
     reminders = json.load(f)
-
-# avoid duplicates in same run
-sent = set()
 
 for r in reminders:
     target_time = datetime.datetime.strptime(r["time"], "%H:%M")
@@ -22,16 +19,13 @@ for r in reminders:
 
     diff = (current_dt - target_dt).total_seconds()
 
-    # ✅ ADD HERE
     print("Current:", current_dt.strftime("%H:%M"))
     print("Target:", r["time"])
     print("Diff:", diff)
 
-    unique_id = r["task"] + str(current_dt.date())
-
-    if -120 <= diff <= 600 and unique_id not in sent:
+    if -60 <= diff <= 60:
         try:
-            print("Trying to send email...")  # ✅ ADD HERE
+            print("Trying to send email...")
 
             msg = MIMEText(f"Reminder: {r['task']}")
             msg["Subject"] = "Task Reminder"
@@ -44,7 +38,6 @@ for r in reminders:
                 server.send_message(msg)
 
             print("✅ Email sent")
-            sent.add(unique_id)
 
         except Exception as e:
             print("❌ Error:", e)
