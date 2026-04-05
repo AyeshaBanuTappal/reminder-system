@@ -8,15 +8,19 @@ SENDER = "ayeshabhanu788@gmail.com"
 RECEIVER = "edigarajesh38@gmail.com"
 PASSWORD = os.environ.get("EMAIL_PASS")
 
-# Current IST time
+# Get current IST time
 current_dt = datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)
 
 # Load reminders
 with open("reminders.json", "r") as f:
     reminders = json.load(f)
 
-# Prevent duplicate emails
-sent = set()
+# Load already sent reminders
+if os.path.exists("sent.json"):
+    with open("sent.json", "r") as f:
+        sent = set(json.load(f))
+else:
+    sent = set()
 
 for r in reminders:
     target_time = datetime.datetime.strptime(r["time"], "%H:%M")
@@ -35,10 +39,10 @@ for r in reminders:
 
     unique_id = r["task"] + str(current_dt.date())
 
-    # FINAL CONDITION (no miss)
-    if diff >= 0 and unique_id not in sent:
+    # Send ONLY once within 1 minute window
+    if 0 <= diff <= 60 and unique_id not in sent:
         try:
-            print("Trying to send email...")
+            print("📧 Sending email...")
 
             msg = MIMEText(f"Reminder: {r['task']}")
             msg["Subject"] = "Task Reminder"
@@ -51,7 +55,14 @@ for r in reminders:
                 server.send_message(msg)
 
             print("✅ Email sent")
+
+            # Save sent reminder
             sent.add(unique_id)
+            with open("sent.json", "w") as f:
+                json.dump(list(sent), f)
 
         except Exception as e:
             print("❌ Error:", e)
+
+    else:
+        print("⏳ Not time yet or already sent")
